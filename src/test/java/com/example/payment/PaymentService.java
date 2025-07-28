@@ -1,6 +1,11 @@
 package com.example.payment;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PaymentService {
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentService.class);
 
     private final PaymentGateway gateway;
 
@@ -9,19 +14,30 @@ public class PaymentService {
     }
 
     public boolean makePayment(String userId, double amount) {
-        try {
-            if (userId == null || userId.isEmpty()) {
-                throw new Exception("Invalid user ID");
-            }
+        validateUserId(userId);
+        validateAmount(amount);
 
+        try {
             boolean result = gateway.charge(userId, amount);
             if (!result) {
-                System.out.println("Payment failed for user: " + userId);
+                logger.warn("Payment failed for user: {}", userId);
             }
             return result;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Exception occurred during payment for user {}: {}", userId, e.getMessage(), e);
             return false;
+        }
+    }
+
+    private void validateUserId(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+    }
+
+    private void validateAmount(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than zero");
         }
     }
 }

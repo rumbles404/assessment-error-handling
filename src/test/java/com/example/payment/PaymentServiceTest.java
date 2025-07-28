@@ -12,7 +12,7 @@ public class PaymentServiceTest {
         Assert.assertTrue(service.makePayment("user123", 100.0));
     }
 
-    @Test
+    @Test (expectedExceptions = IllegalArgumentException.class)
     public void testInvalidUserId() {
         PaymentGateway gateway = (userId, amount) -> true;
         PaymentService service = new PaymentService(gateway);
